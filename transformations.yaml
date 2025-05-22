@@ -1,0 +1,11 @@
+transformationRules:
+- description: Remove nodeAffinity that ties the PV back to the source region
+  resourceFilter:
+    groupKinds:
+    - resourceGroup: ""
+      resourceKind: PersistentVolume
+  fieldActions:
+  - op: REMOVE
+    path: "/spec/nodeAffinity"
+  - op: REMOVE
+    path: "/spec/claimRef"

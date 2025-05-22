@@ -1,0 +1,20 @@
+# NOTE: Copy this file to 'configure.sh' and modifiy accordingly
+# This file is intended to be "sourced" from your shell. 
+# Please don't execute directly
+
+export PROJECT_ID=$(gcloud config get-value project)
+export NETWORK_NAME=""
+export DOCKER_REPO_NAME=""
+export SOURCE_CLUSTER=""
+export TARGET_CLUSTER=""
+export SOURCE_PD_NAME=""
+export SOURCE_PD_REPLICA_ZONES=""
+export TARGET_PD_NAME=""
+export TARGET_PD_REPLICA_ZONES=""
+export REGION=""
+export DR_REGION=""
+export NAME_PREFIX=""
+export BACKUP_PLAN_NAME=""
+export BACKUP_NAME=bkp-"$BACKUP_PLAN_NAME"
+export RESTORE_PLAN_NAME="$NAME_PREFIX-rest-plan-14"
+export RESTORE_NAME=rest-"$RESTORE_PLAN_NAME"

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: disk-writer-deployment 
+  namespace: bfg
+spec:
+  selector:
+    matchLabels:
+      app: disk-writer # has to match .spec.template.metadata.labels
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: disk-writer # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: disk-writer 
+        image: us-docker.pkg.dev/gke-int-multi-region-failover/bfg-demo/write-10g:v6
+        env:
+        - name: MOUNT_LOCATION 
+          value: /var/run/data 
+        volumeMounts:
+        - name: disk-writer-volume 
+          mountPath: /var/run/data
+      volumes:
+      - name: disk-writer-volume # Arbitrary name for the volume within the pod spec
+        persistentVolumeClaim:
+          # claimName MUST match the name of your existing PVC
+          claimName: disk-writer-pvc 
+
