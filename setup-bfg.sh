@@ -27,11 +27,3 @@ gcloud beta container backup-restore restore-plans create $RESTORE_PLAN_NAME \
   --selected-namespaces=bfg \
   --cluster-resource-scope-selected-group-kinds="storage.k8s.io/StorageClass","scheduling.k8s.io/PriorityClass"
   #--transformation-rules-file=transformations.yaml
-
-gcloud beta container backup-restore restores create $RESTORE_NAME \
-  --project=$PROJECT_ID \
-  --location=$DR_REGION \
-  --restore-plan=$RESTORE_PLAN_NAME \
-  --backup=projects/$PROJECT_ID/locations/$DR_REGION/backupPlans/$BACKUP_PLAN_NAME/backups/$BACKUP_NAME \
-  --volume-data-restore-policy-overrides-file=volume-policy-overrides.yaml \
-  --wait-for-completion
