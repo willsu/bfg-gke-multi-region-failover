@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: disk-writer-pvc # Name of your PVC
-  namespace: bfg
+  namespace: ${NAMESPACE}
 spec:
   # Storage class name MUST match the PV's storageClassName for static binding.
   # If the PV has storageClassName: "", this should also be "".
@@ -16,5 +16,4 @@ spec:
   # The requested storage must be less than or equal to the PV's capacity.
   resources:
     requests:
-      storage: 50Gi # IMPORTANT: This should generally match the PV's capacity for static binding
-
+      storage: ${PD_SIZE} # IMPORTANT: This should generally match the PV's capacity for static binding

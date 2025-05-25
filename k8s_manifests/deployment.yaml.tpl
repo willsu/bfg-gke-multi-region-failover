@@ -16,7 +16,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: disk-writer 
-        image: us-docker.pkg.dev/will-gke-multi-region-bfg/bfg-demo/write-10g:v1
+        image: us-docker.pkg.dev/${PROJECT_ID}/${DOCKER_REPO_NAME}/write-10g:v1
         env:
         - name: MOUNT_LOCATION 
           value: /var/run/data 

@@ -2,11 +2,11 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: disk-writer-pv # Name of the PV object in Kubernetes
-  namespace: bfg
+  namespace: ${NAMESPACE}
 spec:
   # Capacity must match or be greater than the PVC's request
   capacity:
-    storage: 50Gi # IMPORTANT: Change this to the actual size of your 'my-existing-gce-disk'
+    storage: ${PD_SIZE} # IMPORTANT: Change this to the actual size of your 'my-existing-gce-disk'
   # Access modes - GCE PDs are typically ReadWriteOnce (RWO)
   # This means the volume can be mounted as read-write by a single node.
   # For GKE Autopilot, only 'ReadWriteOncePod' is supported for GCE PD.
@@ -25,6 +25,5 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   # GCE Persistent Disk specific configuration
   gcePersistentDisk:
-    pdName: bfg-demo-disk # IMPORTANT: This MUST be the name of your *actual* GCE Persistent Disk
+    pdName: ${SOURCE_PD_NAME} # IMPORTANT: This MUST be the name of your *actual* GCE Persistent Disk
     fsType: ext4 # Filesystem type of your existing disk (e.g., ext4, xfs)
-
