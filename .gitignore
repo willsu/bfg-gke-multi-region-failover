@@ -1,2 +1,4 @@
 configure.sh
 *.swp
+kustomize/base/kustomize-config.yaml
+

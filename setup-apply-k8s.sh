@@ -1,9 +1,7 @@
 #!/bin/bash
 set -eux
 
-envsubst < k8s_manifests/ns.yaml.tpl | kubectl apply -f -
-envsubst < k8s_manifests/pv.yaml.tpl | kubectl apply -f -
-envsubst < k8s_manifests/pvc.yaml.tpl | kubectl apply -f -
-envsubst < k8s_manifests/deployment.yaml.tpl | kubectl apply -f -
+envsubst < kustomize/base/kustomize-config.yaml.tpl > kustomize/base/kustomize-config.yaml
+kubectl apply -k kustomize/base
 
 echo "setup finished.. examine the state of the k8s resources in the 'bfg' namespace"

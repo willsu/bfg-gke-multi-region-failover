@@ -1,0 +1,14 @@
+# my-kustomize-pv-pvc/base/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: disk-writer-pvc # Name of your PVC
+  namespace: NAMESPACE # Placeholder for NAMESPACE
+spec:
+  storageClassName: manual
+  volumeName: disk-writer-pv # This MUST match the PV's metadata.name
+  accessModes:
+    - ReadWriteOnce # Or ReadWriteOncePod, matching the PV
+  resources:
+    requests:
+      storage: PD_SIZE # Placeholder for PD_SIZE

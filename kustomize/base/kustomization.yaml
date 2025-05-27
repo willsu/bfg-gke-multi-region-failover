@@ -1,0 +1,90 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - pv.yaml
+  - pvc.yaml
+  - deployment.yaml
+  - kustomize-config.yaml
+
+replacements:
+  # Replacement for Namespace (namespace.yaml)
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.namespace # Source for the Namespace name
+    targets:
+      - select:
+          kind: Namespace
+        fieldPaths:
+        - metadata.name # Specify fieldPath for clarity and robustness
+
+  # Replacements for PersistentVolume (pv.yaml)
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.pd-size
+    targets:
+      - select:
+          kind: PersistentVolume
+          name: disk-writer-pv
+        fieldPaths:
+        - spec.capacity.storage
+
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.pd-name
+    targets:
+      - select:
+          kind: PersistentVolume
+          name: disk-writer-pv
+        fieldPaths:
+        - spec.gcePersistentDisk.pdName
+
+  # Replacements for PersistentVolumeClaim (pvc.yaml)
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.namespace
+    targets:
+      - select:
+          kind: PersistentVolumeClaim
+          name: disk-writer-pvc
+        fieldPaths:
+        - metadata.namespace
+
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.pd-size
+    targets:
+      - select:
+          kind: PersistentVolumeClaim
+          name: disk-writer-pvc
+        fieldPaths:
+        - spec.resources.requests.storage
+
+  # Replacements for Deployment (deployment.yaml)
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.namespace # Source for NAMESPACE
+    targets:
+      - select:
+          kind: Deployment
+          name: disk-writer-deployment
+        fieldPaths:
+        - metadata.namespace # Target Deployment's namespace
+
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.image-url # Corrected fieldPath for the image source
+    targets:
+      - select:
+          kind: Deployment
+          name: disk-writer-deployment
+        fieldPaths:
+        - spec.template.spec.containers.[name=disk-writer].image # Target Deployment's image field

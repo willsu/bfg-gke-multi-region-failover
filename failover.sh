@@ -27,7 +27,6 @@ gcloud beta container backup-restore restores create $RESTORE_NAME-$RAND_4_CHAR 
   --wait-for-completion
 
 # Start replication from the DR Region back to the Source Region.
-
 gcloud compute disks create $NEW_PD_NAME \
   --region=$REGION \
   --size=$PD_SIZE_GB \

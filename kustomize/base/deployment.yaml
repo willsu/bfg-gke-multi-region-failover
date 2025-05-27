@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disk-writer-deployment
+  namespace: NAMESPACE # Placeholder for NAMESPACE
+spec:
+  selector:
+    matchLabels:
+      app: disk-writer
+  minReadySeconds: 10
+  template:
+    metadata:
+      labels:
+        app: disk-writer
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: disk-writer
+        image: IMAGE_URL # Placeholder for the full image string
+        env:
+        - name: MOUNT_LOCATION
+          value: /var/run/data
+        volumeMounts:
+        - name: disk-writer-volume
+          mountPath: /var/run/data
+      volumes:
+      - name: disk-writer-volume
+        persistentVolumeClaim:
+          claimName: disk-writer-pvc

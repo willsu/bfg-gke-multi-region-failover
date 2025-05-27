@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: disk-writer-pv # Name of the PV object in Kubernetes
+spec:
+  # Capacity must match or be greater than the PVC's request
+  capacity:
+    storage: PD_SIZE # Placeholder for Kustomize
+  accessModes:
+    - ReadWriteOnce # Or ReadWriteOncePod if using GKE Autopilot
+  storageClassName: manual
+  persistentVolumeReclaimPolicy: Retain
+  # GCE Persistent Disk specific configuration
+  gcePersistentDisk:
+    pdName: PD_NAME # Placeholder for SOURCE_PD_NAME
+    fsType: ext4 # Filesystem type of your existing disk (e.g., ext4, xfs)
+
