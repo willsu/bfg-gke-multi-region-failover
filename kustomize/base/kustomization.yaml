@@ -35,13 +35,24 @@ replacements:
   - source:
       kind: ConfigMap
       name: kustomize-config
-      fieldPath: data.pd-name
+      fieldPath: data.pd-volume-handle
     targets:
       - select:
           kind: PersistentVolume
           name: disk-writer-pv
         fieldPaths:
-        - spec.gcePersistentDisk.pdName
+        - spec.csi.volumeHandle
+
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.namespace
+    targets:
+      - select:
+          kind: PersistentVolume
+          name: disk-writer-pv
+        fieldPaths:
+        - spec.claimRef.namespace
 
   # Replacements for PersistentVolumeClaim (pvc.yaml)
   - source:

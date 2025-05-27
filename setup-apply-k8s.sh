@@ -1,6 +1,7 @@
 #!/bin/bash
 set -eux
 
+export PD_NAME=$SOURCE_PD_NAME
 envsubst < kustomize/base/kustomize-config.yaml.tpl > kustomize/base/kustomize-config.yaml
 kubectl apply -k kustomize/base
 
