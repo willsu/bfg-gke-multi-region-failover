@@ -1,6 +1,0 @@
-volumeDataRestorePolicyOverrides:
-- policy: REUSE_VOLUME_HANDLE_FROM_BACKUP
-  selectedPvcs:
-    namespacedNames:
-    - namespace: bfg 
-      name: disk-writer-pvc
