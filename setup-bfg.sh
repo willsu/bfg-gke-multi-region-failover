@@ -25,5 +25,4 @@ gcloud beta container backup-restore restore-plans create $RESTORE_PLAN_NAME \
   --cluster-resource-conflict-policy=use-existing-version \
   --namespaced-resource-restore-mode=delete-and-restore \
   --selected-namespaces=bfg \
-  --cluster-resource-scope-selected-group-kinds="storage.k8s.io/StorageClass","scheduling.k8s.io/PriorityClass" \
-  --no-volume-data-restoration
+  --cluster-resource-scope-selected-group-kinds="storage.k8s.io/StorageClass","scheduling.k8s.io/PriorityClass"

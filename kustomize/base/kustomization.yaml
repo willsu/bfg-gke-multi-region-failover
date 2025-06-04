@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
-  - pv.yaml
   - pvc.yaml
   - deployment.yaml
   - kustomize-config.yaml
@@ -19,40 +18,6 @@ replacements:
           kind: Namespace
         fieldPaths:
         - metadata.name # Specify fieldPath for clarity and robustness
-
-  # Replacements for PersistentVolume (pv.yaml)
-  - source:
-      kind: ConfigMap
-      name: kustomize-config
-      fieldPath: data.pd-size
-    targets:
-      - select:
-          kind: PersistentVolume
-          name: disk-writer-pv
-        fieldPaths:
-        - spec.capacity.storage
-
-  - source:
-      kind: ConfigMap
-      name: kustomize-config
-      fieldPath: data.pd-volume-handle
-    targets:
-      - select:
-          kind: PersistentVolume
-          name: disk-writer-pv
-        fieldPaths:
-        - spec.csi.volumeHandle
-
-  - source:
-      kind: ConfigMap
-      name: kustomize-config
-      fieldPath: data.namespace
-    targets:
-      - select:
-          kind: PersistentVolume
-          name: disk-writer-pv
-        fieldPaths:
-        - spec.claimRef.namespace
 
   # Replacements for PersistentVolumeClaim (pvc.yaml)
   - source:

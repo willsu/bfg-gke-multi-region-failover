@@ -1,0 +1,6 @@
+exclusionFilters:
+  - groupKind:
+      resourceGroup: ""
+      resourceKind: ConfigMap
+    namespace: bfg
+    name: pv-kustomize-config

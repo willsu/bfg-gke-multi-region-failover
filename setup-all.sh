@@ -7,5 +7,6 @@ source configure.sh
 ./setup-build-docker-image.sh
 ./setup-network.sh
 ./setup-clusters.sh
+./setup-add-console-ip.sh
 ./setup-apply-k8s.sh
 ./setup-bfg.sh

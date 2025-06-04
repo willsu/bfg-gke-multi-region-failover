@@ -14,9 +14,20 @@ gcloud compute disks stop-async-replication bfg-demo-disk \
 gcloud container clusters get-credentials $TARGET_CLUSTER \
   --region $DR_REGION
 
-# Create the PV in the DR Region
-export SOURCE_PD_NAME=$TARGET_PD_NAME
-envsubst < k8s_manifests/pv.yaml.tpl | kubectl apply -f -
+# Find the replication disks name in the DR region
+export PD_NAME=$(gcloud compute disks describe $SOURCE_PD_NAME \
+  --region=$REGION \
+  --format="json" | \
+  jq -r '.asyncSecondaryDisks | keys[]' | \
+  awk -F'/' '{print $NF}')
+
+# Apply the PV yaml to the DR region before the backup is restored
+REGION_BAK=$REGION
+export REGION=$DR_REGION
+envsubst < kustomize/pv-base/pv-kustomize-config.yaml.tpl > kustomize/pv-base/pv-kustomize-config.yaml
+kubectl apply -k kustomize/pv-base
+# TODO: change names of vars in the template to stop this variable jugglins
+export REGION=$REGION_BAK
 
 # Run the backup restoration process
 gcloud beta container backup-restore restores create $RESTORE_NAME-$RAND_4_CHAR \
@@ -25,6 +36,7 @@ gcloud beta container backup-restore restores create $RESTORE_NAME-$RAND_4_CHAR 
   --restore-plan=$RESTORE_PLAN_NAME \
   --backup=projects/$PROJECT_ID/locations/$DR_REGION/backupPlans/$BACKUP_PLAN_NAME/backups/$BACKUP_NAME \
   --wait-for-completion
+  # --filter-file=exclusion-filter.yaml \
 
 # Start replication from the DR Region back to the Source Region.
 gcloud compute disks create $NEW_PD_NAME \
@@ -42,3 +54,6 @@ gcloud compute disks start-async-replication bfg-demo-disk \
   --secondary-disk-region=$REGION \
   --secondary-disk-project=$PROJECT_ID
 
+# Configure kubectl to source to DR cluster
+gcloud container clusters get-credentials $TARGET_CLUSTER \
+  --region $DR_REGION
