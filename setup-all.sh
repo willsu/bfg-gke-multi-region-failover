@@ -1,7 +1,6 @@
 #!/bin/bash
 set -eux
 
-source configure.sh
 ./setup-pds.sh
 ./setup-ar.sh
 ./setup-build-docker-image.sh

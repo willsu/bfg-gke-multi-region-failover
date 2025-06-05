@@ -12,4 +12,4 @@ envsubst < kustomize/pv-base/pv-kustomize-config.yaml.tpl > kustomize/pv-base/pv
 kubectl apply -k kustomize/base
 kubectl apply -k kustomize/pv-base
 
-echo "setup finished.. examine the state of the k8s resources in the 'bfg' namespace"
+echo "setup finished.. examine the state of the k8s resources in the '$NAMESPACE' namespace"

@@ -16,7 +16,7 @@ gcloud compute disks create $TARGET_PD_NAME \
   --primary-disk-project=$PROJECT_ID \
   --replica-zones=$TARGET_PD_REPLICA_ZONES
 
-gcloud compute disks start-async-replication bfg-demo-disk \
+gcloud compute disks start-async-replication $SOURCE_PD_NAME \
   --region=$REGION \
   --secondary-disk=$TARGET_PD_NAME \
   --secondary-disk-region=$DR_REGION \
