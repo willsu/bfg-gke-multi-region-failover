@@ -2,8 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: pv-kustomize-config
-  namespace: "${NAMESPACE}" 
+  namespace: "${TPL_NAMESPACE}" 
 data:
-  pd-size: "${PD_SIZE}"
-  pd-volume-handle: "projects/${PROJECT_ID}/regions/${REGION}/disks/${PD_NAME}"
+  disk-writer-pd-volume-handle: "${TPL_DISK_WRITER_PV_VOLUME_HANDLE}"
   namespace: "bfg"

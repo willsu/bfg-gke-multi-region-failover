@@ -39,12 +39,6 @@ gcloud beta container backup-restore backup-plans create $BACKUP_PLAN_NAME-$DR_R
   --backup-retain-days=1 \
   --backup-delete-lock-days=0
 
-gcloud beta container backup-restore backups create $BACKUP_NAME-$DR_REGION \
-  --project=$PROJECT_ID \
-  --location=$REGION \
-  --backup-plan=$BACKUP_PLAN_NAME-$DR_REGION \
-  --wait-for-completion
-
 gcloud beta container backup-restore restore-plans create $RESTORE_PLAN_NAME-$DR_REGION \
   --project=$PROJECT_ID \
   --location=$REGION \

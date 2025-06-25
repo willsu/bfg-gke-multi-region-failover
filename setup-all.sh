@@ -9,3 +9,5 @@ set -eux
 ./setup-add-console-ip.sh
 ./setup-apply-k8s.sh
 ./setup-bfg.sh
+./setup-create-storage-bucket.sh
+./create-backup.sh
