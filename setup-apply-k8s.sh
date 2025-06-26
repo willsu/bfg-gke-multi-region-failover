@@ -5,7 +5,7 @@ set -eux
 gcloud container clusters get-credentials $SOURCE_CLUSTER \
   --region $REGION
 
-export PD_NAME=$SOURCE_PD_NAME
+export TPL_DISK_WRITER_PV_VOLUME_HANDLE="projects/${PROJECT_ID}/regions/${REGION}/disks/${SOURCE_PD_NAME}"
 envsubst < kustomize/base/kustomize-config.yaml.tpl > kustomize/base/kustomize-config.yaml
 envsubst < kustomize/pv-base/pv-kustomize-config.yaml.tpl > kustomize/pv-base/pv-kustomize-config.yaml
 
