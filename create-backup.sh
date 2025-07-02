@@ -1,6 +1,28 @@
+#!/bin/bash
+
 set -eux
 
+# List of required env vars
+# PROJECT_ID
+# SOURCE_CLUSTER
+# REGION
+# DR_REGION
+# NAMESPACE
+# BACKUP_NAME
+# BACKUP_PLAN_NAME
+# PV_STORAGE_BUCKET
+
 RAND_4_CHAR=$(tr -dc '[:lower:]' </dev/urandom | head -c 4)
+
+gcloud config set project $PROJECT_ID
+
+CURRENT_IP=$(curl -4 -s "https://ifconfig.me/ip")
+CURRENT_IP_CIDR="$CURRENT_IP/32"
+
+gcloud container clusters update $SOURCE_CLUSTER \
+  --location $REGION \
+  --enable-master-authorized-networks \
+  --master-authorized-networks "$CURRENT_IP_CIDR"
 
 # Configure kubectl to point to Source cluster
 gcloud container clusters get-credentials $SOURCE_CLUSTER \
@@ -26,7 +48,7 @@ while IFS=' ' read -r pv_name full_volume_handle; do
   jq -n --arg pv_name "$pv_name" \
         --arg source_handle "$full_volume_handle" \
         --arg target_handle "$TARGET_VOLUME_PD_HANDLE" \
-        '{$pv_name: {sourceVolume: $source_handle, targetVolume: $target_handle}}' >> "$TEMP_JSON_STREAM_FILE"
+	'{ ( $pv_name ): {sourceVolume: $source_handle, targetVolume : $target_handle}}' >> "$TEMP_JSON_STREAM_FILE"
 done <<< "$JSON_KEYS_VALUES"
 
 # Merge all the individual JSON docs written to the temp file together
