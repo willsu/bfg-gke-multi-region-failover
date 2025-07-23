@@ -29,7 +29,7 @@ while IFS=' ' read -r pv_name source_volume_handle target_volume_handle; do
     --region=$DR_REGION \
     --project="$PROJECT_ID" \
     --format=json \
-    | jq -r '.resourceStatus.asyncPrimaryDisk.state == "RUNNING"')
+    | jq -r '.resourceStatus.asyncSecondaryDisks // {} | any(.state == "ACTIVE")')
 
   if [ "$SECONDARY_ASYNC_EXISTS" == "false" ]; then
     NEW_PD_NAME="${SOURCE_VOLUME_SHORT_NAME}-${RAND_4_CHAR}"

@@ -3,6 +3,7 @@ set -eux
 
 ./setup-pds.sh
 ./setup-ar.sh
+./setup-build-backup-docker-image.sh
 ./setup-build-writer-docker-image.sh
 ./setup-network.sh
 ./setup-clusters.sh

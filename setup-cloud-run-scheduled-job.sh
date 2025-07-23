@@ -5,6 +5,7 @@ SOURCE_CLOUD_RUN_JOB_NAME="bfg-backup-job-${REGION}"
 SOURCE_CLOUD_SCHEDULER_JOB_NAME="bfg-backup-scheduler-${REGION}"
 DR_CLOUD_RUN_JOB_NAME="bfg-backup-job-${DR_REGION}"
 DR_CLOUD_SCHEDULER_JOB_NAME="bfg-backup-scheduler-${DR_REGION}"
+FAILOVER_CLOUD_RUN_JOB_NAME="bfg-failover-job"
 
 SERVICE_ACCOUNT="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 
@@ -23,6 +24,14 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:$SERVICE_ACCOUNT" \
   --role="roles/storage.objectCreator"
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$SERVICE_ACCOUNT" \
+  --role="roles/compute.storageAdmin"
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$SERVICE_ACCOUNT" \
+  --role="roles/gkebackup.restoreAdmin"
 
 gcloud storage buckets add-iam-policy-binding "gs://${PV_STORAGE_BUCKET}" \
   --member="serviceAccount:$SERVICE_ACCOUNT" \
@@ -97,3 +106,22 @@ gcloud scheduler jobs create http $DR_CLOUD_SCHEDULER_JOB_NAME \
   --min-backoff='5s' \
   --max-backoff='3600s' \
   --max-doublings=5
+
+# Create the Cloud Run Job to failover between clusters
+gcloud run jobs create "$FAILOVER_CLOUD_RUN_JOB_NAME" \
+  --image "us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/failover:v1" \
+  --region "$REGION" \
+  --task-timeout=5m \
+  --max-retries=3 \
+  --service-account="$SERVICE_ACCOUNT" \
+  --set-env-vars="^:^PROJECT_ID=$PROJECT_ID:\
+  DR_REGION=$DR_REGION:\
+  BACKUP_PLAN_NAME=$BACKUP_PLAN_NAME:\
+  REGION=$REGION:\
+  PV_STORAGE_BUCKET=$PV_STORAGE_BUCKET:\
+  NAMESPACE=$NAMESPACE:\
+  TARGET_CLUSTER=$TARGET_CLUSTER:\
+  RESTORE_NAME=$RESTORE_NAME:\
+  RESTORE_PLAN_NAME=$RESTORE_PLAN_NAME:\
+  PD_SIZE_GB=$PD_SIZE_GB:\
+  SOURCE_PD_REPLICA_ZONES=$SOURCE_PD_REPLICA_ZONES"

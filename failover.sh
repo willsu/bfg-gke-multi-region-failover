@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eux
+set -euxo pipefail
 
 # Assume that the source region/cluster may not be reachable
 
@@ -9,7 +9,7 @@ LATEST_BACKUP=$(gcloud beta container backup-restore backups list \
   --project=$PROJECT_ID \
   --location=$DR_REGION \
   --backup-plan=$BACKUP_PLAN_NAME-$REGION \
-  --format="json" 2>/dev/null | \
+  --format="json" | \
   jq -r '
     map(
       select(
@@ -22,6 +22,11 @@ LATEST_BACKUP=$(gcloud beta container backup-restore backups list \
     last |
     .name
   ')
+
+if [[ -z "$LATEST_BACKUP" ]]; then
+  echo "No BfG Backups found with at least 1 pod"
+  exit 1
+fi
 
 # Find the associated cloud storage object with the PV mapping data
 # See 'create-backup.sh' to see how the JSON objects get created.
@@ -45,6 +50,7 @@ while IFS=' ' read -r pv_name source_volume_handle target_volume_handle; do
   # Stop disk replication on the target disk
   # TODO: Handle errors. In the event of a regional outage there will be no reason to stop async replication.
   gcloud compute disks stop-async-replication $SOURCE_VOLUME_SHORT_NAME \
+    --project=$PROJECT_ID \
     --region=$REGION
 
   # Set the template variable used for envsub
@@ -54,7 +60,7 @@ while IFS=' ' read -r pv_name source_volume_handle target_volume_handle; do
 done <<< "$PV_SOURCE_AND_TARGETS"
 
 # Render the envsubst kustomize config template
-TPL_NAMESPACE=$NAMESPACE
+export TPL_NAMESPACE=$NAMESPACE
 envsubst < kustomize/pv-base/pv-kustomize-config.yaml.tpl > kustomize/pv-base/pv-kustomize-config.yaml
 
 # Apply the PV yaml to the DR region before the backup is restored
@@ -62,7 +68,7 @@ gcloud container clusters get-credentials $TARGET_CLUSTER \
   --region $DR_REGION
 kubectl apply -k kustomize/pv-base
 
-RAND_4_CHAR=$(tr -dc '[:lower:]' </dev/urandom | head -c 4)
+RAND_4_CHAR=$(tr -dc '[:lower:]' </dev/urandom | head -c 4 || true)
 
 # Run the backup restoration process
 gcloud beta container backup-restore restores create $RESTORE_NAME-$RAND_4_CHAR \
