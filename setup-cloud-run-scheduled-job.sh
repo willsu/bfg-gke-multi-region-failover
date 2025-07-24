@@ -5,7 +5,8 @@ SOURCE_CLOUD_RUN_JOB_NAME="bfg-backup-job-${REGION}"
 SOURCE_CLOUD_SCHEDULER_JOB_NAME="bfg-backup-scheduler-${REGION}"
 DR_CLOUD_RUN_JOB_NAME="bfg-backup-job-${DR_REGION}"
 DR_CLOUD_SCHEDULER_JOB_NAME="bfg-backup-scheduler-${DR_REGION}"
-FAILOVER_CLOUD_RUN_JOB_NAME="bfg-failover-job"
+SOURCE_TO_DR_FAILOVER_CLOUD_RUN_JOB_NAME="bfg-failover-job-${REGION}-to-${DR_REGION}"
+DR_TO_SOURCE_FAILOVER_CLOUD_RUN_JOB_NAME="bfg-failover-job-${DR_REGION}-to-${REGION}"
 
 SERVICE_ACCOUNT="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 
@@ -107,10 +108,10 @@ gcloud scheduler jobs create http $DR_CLOUD_SCHEDULER_JOB_NAME \
   --max-backoff='3600s' \
   --max-doublings=5
 
-# Create the Cloud Run Job to failover between clusters
-gcloud run jobs create "$FAILOVER_CLOUD_RUN_JOB_NAME" \
+# Create the Cloud Run Job to failover from the source to DR cluster
+gcloud run jobs create "$SOURCE_TO_DR_FAILOVER_CLOUD_RUN_JOB_NAME" \
   --image "us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/failover:v1" \
-  --region "$REGION" \
+  --region "$DR_REGION" \
   --task-timeout=5m \
   --max-retries=3 \
   --service-account="$SERVICE_ACCOUNT" \
@@ -125,3 +126,23 @@ gcloud run jobs create "$FAILOVER_CLOUD_RUN_JOB_NAME" \
   RESTORE_PLAN_NAME=$RESTORE_PLAN_NAME:\
   PD_SIZE_GB=$PD_SIZE_GB:\
   SOURCE_PD_REPLICA_ZONES=$SOURCE_PD_REPLICA_ZONES"
+
+# Create the Cloud Run Job to failover from the DR to source cluster
+gcloud run jobs create "$DR_T
+O_SOURCE_FAILOVER_CLOUD_RUN_JOB_NAME" \
+  --image "us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/failover:v1" \
+  --region "$REGION" \
+  --task-timeout=5m \
+  --max-retries=3 \
+  --service-account="$SERVICE_ACCOUNT" \
+  --set-env-vars="^:^PROJECT_ID=$PROJECT_ID:\
+  DR_REGION=$REGION:\
+  BACKUP_PLAN_NAME=$BACKUP_PLAN_NAME:\
+  REGION=$DR_REGION:\
+  PV_STORAGE_BUCKET=$PV_STORAGE_BUCKET:\
+  NAMESPACE=$NAMESPACE:\
+  TARGET_CLUSTER=$SOURCE_CLUSTER:\
+  RESTORE_NAME=$RESTORE_NAME:\
+  RESTORE_PLAN_NAME=$RESTORE_PLAN_NAME:\
+  PD_SIZE_GB=$PD_SIZE_GB:\
+  SOURCE_PD_REPLICA_ZONES=$TARGET_PD_REPLICA_ZONES"
