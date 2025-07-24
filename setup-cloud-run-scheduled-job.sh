@@ -128,8 +128,7 @@ gcloud run jobs create "$SOURCE_TO_DR_FAILOVER_CLOUD_RUN_JOB_NAME" \
   SOURCE_PD_REPLICA_ZONES=$SOURCE_PD_REPLICA_ZONES"
 
 # Create the Cloud Run Job to failover from the DR to source cluster
-gcloud run jobs create "$DR_T
-O_SOURCE_FAILOVER_CLOUD_RUN_JOB_NAME" \
+gcloud run jobs create "$DR_TO_SOURCE_FAILOVER_CLOUD_RUN_JOB_NAME" \
   --image "us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/failover:v1" \
   --region "$REGION" \
   --task-timeout=5m \
