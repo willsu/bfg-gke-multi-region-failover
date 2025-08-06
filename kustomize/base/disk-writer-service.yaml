@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: disk-writer-service
+  namespace: NAMESPACE # Placeholder for NAMESPACE
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: disk-writer
+  clusterIP: None

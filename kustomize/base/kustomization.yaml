@@ -4,7 +4,9 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - pvc.yaml
-  - deployment.yaml
+  - disk-writer-stateful-set.yaml
+  - disk-writer-service.yaml
+  - disk-writer-service-ilb.yaml
   - kustomize-config.yaml
 
 replacements:
@@ -42,15 +44,15 @@ replacements:
         fieldPaths:
         - spec.resources.requests.storage
 
-  # Replacements for Deployment (deployment.yaml)
+  # Replacements for StatefulSet (disk-writer-stateful-set.yaml)
   - source:
       kind: ConfigMap
       name: kustomize-config
       fieldPath: data.namespace # Source for NAMESPACE
     targets:
       - select:
-          kind: Deployment
-          name: disk-writer-deployment
+          kind: StatefulSet
+          name: disk-writer-stateful-set
         fieldPaths:
         - metadata.namespace # Target Deployment's namespace
 
@@ -60,7 +62,31 @@ replacements:
       fieldPath: data.image-url # Corrected fieldPath for the image source
     targets:
       - select:
-          kind: Deployment
-          name: disk-writer-deployment
+          kind: StatefulSet
+          name: disk-writer-stateful-set
         fieldPaths:
         - spec.template.spec.containers.[name=disk-writer].image # Target Deployment's image field
+
+  # Replacements for Service (disk-writer-service.yaml)
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.namespace # Source for NAMESPACE
+    targets:
+      - select:
+          kind: Service
+          name: disk-writer-service
+        fieldPaths:
+        - metadata.namespace # Target Deployment's namespace
+
+  # Replacements for Service (disk-writer-service-ilb.yaml)
+  - source:
+      kind: ConfigMap
+      name: kustomize-config
+      fieldPath: data.namespace # Source for NAMESPACE
+    targets:
+      - select:
+          kind: Service
+          name: disk-writer-service-ilb
+        fieldPaths:
+        - metadata.namespace # Target Deployment's namespace

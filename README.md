@@ -2,6 +2,11 @@
 
 Highly Experimental.. Please ignore
 
+Next Steps:
+* Change container behavior to webserver and created client container to add/get bytes to disk. Run client in 3rd region to show how the client could recover during cross-region failover
+* Create Load Balancer with failover conditions that the client uses to communicate with the service in the active region.
+* Test multiple stateful workloads 
+
 Assumptions
 * In a complete regional failure, we cannot depend on any information from the source region (e.g Persistent Disks in the Cloud Console, GKE cluster configurations, etc)
 * Persistent Disks with cross-region asynchronous replication must be managed outside of GKE and brought into the cluser through Static Volume Provision.

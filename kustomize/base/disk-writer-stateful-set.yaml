@@ -1,13 +1,13 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: disk-writer-deployment
+  name: disk-writer-stateful-set
   namespace: NAMESPACE # Placeholder for NAMESPACE
 spec:
+  serviceName: "disk-writer"
   selector:
     matchLabels:
       app: disk-writer
-  minReadySeconds: 10
   template:
     metadata:
       labels:
@@ -17,6 +17,9 @@ spec:
       containers:
       - name: disk-writer
         image: IMAGE_URL # Placeholder for the full image string
+        ports:
+        - containerPort: 8080
+          name: http
         env:
         - name: MOUNT_LOCATION
           value: /var/run/data

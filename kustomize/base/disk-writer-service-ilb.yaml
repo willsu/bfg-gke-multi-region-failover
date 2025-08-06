@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: disk-writer-service-ilb
+  namespace: NAMESPACE # Placeholder for NAMESPACE
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
+    networking.gke.io/internal-load-balancer-allow-global-access: "true"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
+  selector:
+    app: disk-writer
+  ports:
+  - name: tcp-port
+    protocol: TCP
+    port: 80
+    targetPort: 8080
