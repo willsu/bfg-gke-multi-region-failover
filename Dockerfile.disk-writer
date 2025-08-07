@@ -27,9 +27,6 @@ COPY write-bytes.sh /usr/local/bin/write-bytes.sh
 # Set execute permissions for the script
 RUN chmod +x /usr/local/bin/write-bytes.sh
 
-# Create the mount point directory for the disk file
-RUN mkdir -p /mnt/data
-
 # Copy NGINX configuration template
 COPY nginx.conf /etc/nginx/nginx.conf.template
 
@@ -38,5 +35,5 @@ ENV PORT=8080
 EXPOSE ${PORT}
 
 # Set permissions on the mounted data directory at runtime and start NGINX
-# chmod -R 777 /mnt/data is crucial for host-mounted volume write access
-CMD ["sh", "-c", "chmod -R 777 /mnt/data && envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
+# TODO: the /var/run/data path should be configurable
+CMD ["sh", "-c", "chmod -R 777 /var/run/data && envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
