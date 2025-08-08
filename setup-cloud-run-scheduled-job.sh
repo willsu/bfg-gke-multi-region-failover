@@ -8,8 +8,6 @@ DR_CLOUD_SCHEDULER_JOB_NAME="bfg-backup-scheduler-${DR_REGION}"
 SOURCE_TO_DR_FAILOVER_CLOUD_RUN_JOB_NAME="bfg-failover-job-${REGION}-to-${DR_REGION}"
 DR_TO_SOURCE_FAILOVER_CLOUD_RUN_JOB_NAME="bfg-failover-job-${DR_REGION}-to-${REGION}"
 
-SERVICE_ACCOUNT="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
-
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:$SERVICE_ACCOUNT" \
   --role="roles/container.admin"
