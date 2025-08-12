@@ -8,4 +8,4 @@ data:
   # {.metadata.name}-volume-handle: TPL_{upcase{.metadata.name}}_VOLUME_HANDLE
   # For example, the .metadata.name of the PersistentVolume resource on the next line is "disk-writer-pv"
   disk-writer-pd-volume-handle: "${TPL_DISK_WRITER_PV_VOLUME_HANDLE}"
-  namespace: "bfg"
+  namespace: "${TPL_NAMESPACE}"

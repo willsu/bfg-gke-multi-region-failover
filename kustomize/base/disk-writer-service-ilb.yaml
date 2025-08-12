@@ -6,6 +6,8 @@ metadata:
   annotations:
     networking.gke.io/load-balancer-type: "Internal"
     networking.gke.io/internal-load-balancer-allow-global-access: "true"
+  labels:
+    service-type: cross-region-async
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Cluster

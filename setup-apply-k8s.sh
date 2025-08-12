@@ -1,10 +1,6 @@
 #!/bin/bash
 set -eux
 
-# Configure kubectl to point to Source cluster
-gcloud container clusters get-credentials $SOURCE_CLUSTER \
-  --region $REGION
-
 export TPL_NAMESPACE=$NAMESPACE
 export TPL_DISK_WRITER_PV_VOLUME_HANDLE="projects/${PROJECT_ID}/regions/${REGION}/disks/${SOURCE_PD_NAME}"
 envsubst < kustomize/base/kustomize-config.yaml.tpl > kustomize/base/kustomize-config.yaml

@@ -78,6 +78,28 @@ gcloud beta container backup-restore restores create $RESTORE_NAME-$RAND_4_CHAR 
   --backup=$LATEST_BACKUP \
   --wait-for-completion
 
+# Ensure the Services have an IP address assigned
+echo "Waiting for all Services with 'service-type=cross-region-async' label to have ingress IP addresses"
+kubectl wait --for=jsonpath='{.status.loadBalancer.ingress[0].ip}' \
+  services -l service-type=cross-region-async --all-namespaces --timeout=300s
+
+# Update the client facing DNS A record to the new cluster
+kubectl get services -l service-type=cross-region-async --all-namespaces --output=json | \
+  jq -r '.items[] | select(.status.loadBalancer.ingress[0].ip != null) | "\(.spec.selector.app) \(.status.loadBalancer.ingress[0].ip)"' | \
+  while read -r APP_NAME IP_ADDR; do
+
+  # The DNS record should already exist, but don't break on failure
+  if gcloud dns record-sets describe "$APP_NAME.$DNS_NAME." \
+    --zone="$DNS_ZONE_NAME" \
+    --type="A"; then
+    gcloud dns record-sets update "$APP_NAME.$DNS_NAME." \
+      --zone="${DNS_ZONE_NAME}" \
+      --type="A" \
+      --ttl="5" \
+      --rrdatas="$IP_ADDR"
+  fi
+done
+
 # Attempt to create the replicate PDs in the source region
 export LATEST_BACKUP_SHORT_NAME
 ./failover-create-failback-pds.sh

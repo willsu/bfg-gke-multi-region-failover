@@ -21,6 +21,7 @@ gcloud container clusters create $SOURCE_CLUSTER \
   --shielded-secure-boot \
   --shielded-integrity-monitoring \
   --enable-autoscaling \
+  --addons=BackupRestore \
    &
 
 gcloud container clusters create $TARGET_CLUSTER \
@@ -38,18 +39,21 @@ gcloud container clusters create $TARGET_CLUSTER \
   --shielded-secure-boot \
   --shielded-integrity-monitoring \
   --enable-autoscaling \
+  --addons=BackupRestore \
   &
 
 wait
 echo "GKE clusters '$SOURCE_CLUSTER' and '$TARGET_CLUSTER' created successfully."
 
-CURRENT_IP=$(curl -s "https://ifconfig.me/ip")
-CURRENT_IP_CIDR="$CURRENT_IP/32"
-
 gcloud container clusters update $SOURCE_CLUSTER \
   --location $REGION \
   --enable-master-authorized-networks \
-  --master-authorized-networks "$CURRENT_IP_CIDR"
+  --master-authorized-networks "0.0.0.0/0"
+
+gcloud container clusters update $TARGET_CLUSTER \
+  --location $DR_REGION \
+  --enable-master-authorized-networks \
+  --master-authorized-networks "0.0.0.0/0"
 
 gcloud container clusters get-credentials $SOURCE_CLUSTER \
   --region=$REGION \
