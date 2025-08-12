@@ -15,26 +15,11 @@ handle_post() {
     }
 
     if [ "$NUM_BYTES" -le 0 ]; then
-        if [ -f "$FILE_PATH" ]; then
-            if /bin/rm -f "$FILE_PATH"; then
-                echo "File removed successfully for 0 or negative bytes."
-                return 0
-            else
-                echo "ERROR: Failed to remove file $FILE_PATH for 0 or negative bytes." >&2
-                return 1
-            fi
-        else
-            echo "File already does not exist for 0 or negative bytes."
-            return 0
-        fi
+        echo "Please specify a value greater than 0"
+        return 1
     fi
 
-    # Use a single dd command with a block size of 1 to guarantee a non-sparse file
-    local DD_CMD="/bin/dd if=/dev/zero of=\"$FILE_PATH\" bs=1 count=\"$NUM_BYTES\" status=none conv=fsync"
-
-    if eval "$DD_CMD" 2>&1; then
-        # Force all buffered data to be written to the physical disk.
-        /bin/sync
+    if /bin/dd if=/dev/zero of="$FILE_PATH" bs=1 count="$NUM_BYTES" 2>&1; then
         echo "SUCCESS: File created/resized to ${NUM_BYTES} bytes at ${FILE_PATH} and synced to disk."
         return 0
     else
@@ -44,11 +29,17 @@ handle_post() {
 }
 
 handle_get() {
+    FULL_ZONE_PATH=$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/zone)
+    REGION=$(echo "$FULL_ZONE_PATH" | awk -F'/' '{print $4}')
+
+    # Get the hostname directly
+    HOSTNAME=$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/hostname)
+
     if [ -f "$FILE_PATH" ]; then
         FILE_SIZE=$(wc -c < "$FILE_PATH")
-        echo "{\"current_disk_usage_bytes\": ${FILE_SIZE}}"
+        echo "{\"current_disk_usage_bytes\": ${FILE_SIZE}, \"region\": \"${REGION}\", \"hostname\": \"${HOSTNAME}\"}"
     else
-        echo "{\"current_disk_usage_bytes\": 0}"
+        echo "{\"current_disk_usage_bytes\": 0, \"region\": \"${REGION}\", \"hostname\": \"${HOSTNAME}\"}"
     fi
     printf "\n"
     return 0

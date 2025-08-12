@@ -26,7 +26,9 @@ HTML_TEMPLATE = """
 <body>
     <div class="container">
         <h1>Disk Writer</h1>
-        <h3>Current Disk Usage: {{ current_size }} bytes</h3>
+        <h3>Current Disk Usage: {{ current_size }} bytes ({{current_size_mb}} MB)</h3>
+        <h3>Region: {{ region }} </h3>
+        <h3>Hostname: {{ hostname }} </h3>
 
         <form action="{{ url_for('set_disk_usage') }}" method="post">
             <label for="num_bytes">Enter Number of Bytes:</label><br>
@@ -53,11 +55,14 @@ def get_disk_usage():
 
     backend_url = f"http://{DISK_WRITER_HOST}/disk"
     try:
-        response = requests.get(backend_url)
+        response = requests.get(backend_url, timeout=5, stream=True)
         # Parse the JSON response from the backend to get the size
         data = response.json()
         current_size = data.get("current_disk_usage_bytes", 0)
-        return render_template_string(HTML_TEMPLATE, current_size=current_size)
+        current_size_mb = round(current_size / (1024 * 1024), 2)
+        region = data.get("region", "unknown region")
+        hostname = data.get("hostname", "unknown host")
+        return render_template_string(HTML_TEMPLATE, current_size=current_size, current_size_mb=current_size_mb, region=region, hostname=hostname)
     except requests.exceptions.RequestException as e:
         return jsonify(error=f"Backend GET request failed: {e}"), 500
     except Exception as e:
