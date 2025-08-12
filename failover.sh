@@ -100,6 +100,7 @@ kubectl get services -l service-type=cross-region-async --all-namespaces --outpu
   fi
 done
 
+# TODO: break up the failover-create-failback-pds.sh into it's own Cloud Run Job and invoke from here
 # Attempt to create the replicate PDs in the source region
 export LATEST_BACKUP_SHORT_NAME
 ./failover-create-failback-pds.sh
