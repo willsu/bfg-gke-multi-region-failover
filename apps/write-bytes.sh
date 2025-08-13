@@ -19,7 +19,8 @@ handle_post() {
         return 1
     fi
 
-    if /bin/dd if=/dev/zero of="$FILE_PATH" bs=1 count="$NUM_BYTES" 2>&1; then
+    # 1048576 Bytes in 1 MB
+    if /bin/dd if=/dev/zero of="$FILE_PATH" bs=1M count=$((NUM_BYTES / 1048576)) 2>&1; then
         echo "SUCCESS: File created/resized to ${NUM_BYTES} bytes at ${FILE_PATH} and synced to disk."
         return 0
     else

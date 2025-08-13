@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eux
 
-CLOUD_RUN_DISK_CLIENT="disk-client-${REGION}"
+CLOUD_RUN_DISK_CLIENT="disk-client-${CLIENT_REGION}"
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member "serviceAccount:service-$PROJECT_NUMBER@serverless-robot-prod.iam.gserviceaccount.com" \

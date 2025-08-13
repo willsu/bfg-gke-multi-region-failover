@@ -6,6 +6,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:$SERVICE_ACCOUNT" \
     --role="roles/dns.admin"
 
+# Create the DNS managed zone
 gcloud dns managed-zones create $DNS_ZONE_NAME \
   --dns-name "${DNS_NAME}." \
   --description="will tools private zone" \

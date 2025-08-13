@@ -32,10 +32,6 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:$SERVICE_ACCOUNT" \
   --role="roles/gkebackup.restoreAdmin"
 
-gcloud storage buckets add-iam-policy-binding "gs://${PV_STORAGE_BUCKET}" \
-  --member="serviceAccount:$SERVICE_ACCOUNT" \
-  --role="roles/storage.objectAdmin"
-
 # Create the job to backup the SOURCE_CLUSTER
 gcloud run jobs create "$SOURCE_CLOUD_RUN_JOB_NAME" \
   --image "us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/scheduled-backup:v1" \

@@ -9,7 +9,6 @@ cd setup-scripts
 ./setup-ar.sh
 ./setup-build-all-containers.sh
 ./setup-network.sh
-./setup-dns.sh
 ./setup-clusters.sh
 ../utility-scripts/apply-k8s.sh
 ./setup-bfg.sh
