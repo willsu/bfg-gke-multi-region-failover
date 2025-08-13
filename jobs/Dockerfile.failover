@@ -6,5 +6,5 @@ RUN apt-get update && \
 COPY failover.sh /
 COPY failover-create-failback-pds.sh /
 RUN mkdir -p kustomize/pv-base
-COPY kustomize/pv-base /kustomize/pv-base
+COPY pv-base /kustomize/pv-base
 CMD ["/failover.sh"]

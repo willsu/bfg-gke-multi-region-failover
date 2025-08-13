@@ -1,10 +1,6 @@
 #!/bin/bash
 set -eux
 
-# Enable required APIs
-gcloud services enable compute.googleapis.com container.googleapis.com --project=$PROJECT_ID
-gcloud services enable gkebackup.googleapis.com --project=$PROJECT_ID
-
 # Create GKE clusters in each region
 gcloud container clusters create $SOURCE_CLUSTER \
   --project=$PROJECT_ID \

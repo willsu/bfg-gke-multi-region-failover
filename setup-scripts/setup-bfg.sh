@@ -8,7 +8,6 @@ gcloud beta container backup-restore backup-plans create $BACKUP_PLAN_NAME-$REGI
   --cluster=projects/$PROJECT_ID/locations/$REGION/clusters/$SOURCE_CLUSTER \
   --selected-namespaces=$NAMESPACE \
   --include-secrets \
-  # --cron-schedule="*/10 * * * *" \
   --backup-retain-days=1 \
   --backup-delete-lock-days=0
 
@@ -29,7 +28,6 @@ gcloud beta container backup-restore backup-plans create $BACKUP_PLAN_NAME-$DR_R
   --cluster=projects/$PROJECT_ID/locations/$DR_REGION/clusters/$TARGET_CLUSTER \
   --selected-namespaces=$NAMESPACE \
   --include-secrets \
-  # --cron-schedule="*/10 * * * *" \
   --backup-retain-days=1 \
   --backup-delete-lock-days=0
 
