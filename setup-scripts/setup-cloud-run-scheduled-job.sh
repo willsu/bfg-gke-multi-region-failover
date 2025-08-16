@@ -1,13 +1,6 @@
 #!/bin/bash
 set -eux
 
-SOURCE_CLOUD_RUN_JOB_NAME="bfg-backup-job-${REGION}"
-SOURCE_CLOUD_SCHEDULER_JOB_NAME="bfg-backup-scheduler-${REGION}"
-DR_CLOUD_RUN_JOB_NAME="bfg-backup-job-${DR_REGION}"
-DR_CLOUD_SCHEDULER_JOB_NAME="bfg-backup-scheduler-${DR_REGION}"
-SOURCE_TO_DR_FAILOVER_CLOUD_RUN_JOB_NAME="bfg-failover-job-${REGION}-to-${DR_REGION}"
-DR_TO_SOURCE_FAILOVER_CLOUD_RUN_JOB_NAME="bfg-failover-job-${DR_REGION}-to-${REGION}"
-
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:$SERVICE_ACCOUNT" \
   --role="roles/container.admin"
@@ -81,7 +74,7 @@ gcloud scheduler jobs create http $SOURCE_CLOUD_SCHEDULER_JOB_NAME \
   --http-method=POST \
   --oauth-service-account-email="$SERVICE_ACCOUNT" \
   --oauth-token-scope='https://www.googleapis.com/auth/cloud-platform' \
-  --description='Triggers Cloud Run Job bfg-backup-job every 10 minutes for backup.' \
+  --description='Triggers Cloud Run Job backup-job every 10 minutes for backup.' \
   --headers='User-Agent=Google-Cloud-Scheduler' \
   --attempt-deadline='180s' \
   --min-backoff='5s' \
@@ -95,7 +88,7 @@ gcloud scheduler jobs create http $DR_CLOUD_SCHEDULER_JOB_NAME \
   --http-method=POST \
   --oauth-service-account-email="$SERVICE_ACCOUNT" \
   --oauth-token-scope='https://www.googleapis.com/auth/cloud-platform' \
-  --description='Triggers Cloud Run Job bfg-backup-job every 10 minutes for backup.' \
+  --description='Triggers Cloud Run Job backup-job every 10 minutes for backup.' \
   --headers='User-Agent=Google-Cloud-Scheduler' \
   --attempt-deadline='180s' \
   --min-backoff='5s' \

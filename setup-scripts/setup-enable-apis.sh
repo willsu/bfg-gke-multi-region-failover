@@ -7,4 +7,5 @@ gcloud services enable \
   container.googleapis.com \
   dns.googleapis.com \
   cloudscheduler.googleapis.com \
-  gkebackup.googleapis.com
+  gkebackup.googleapis.com \
+  eventarc.googleapis.com

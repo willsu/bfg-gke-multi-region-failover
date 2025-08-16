@@ -4,3 +4,4 @@ kustomize/base/kustomize-config.yaml
 kustomize/base/kustomize-config-dr.yaml
 kustomize/pv-base/pv-kustomize-config.yaml
 jobs/kustomize
+setup-scripts/gke-control-plane-unreachable-cluster-us-central1.json

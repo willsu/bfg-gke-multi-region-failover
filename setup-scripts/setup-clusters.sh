@@ -1,6 +1,10 @@
 #!/bin/bash
 set -eux
 
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$SERVICE_ACCOUNT" \
+  --role="roles/container.defaultNodeServiceAccount"
+e
 # Create GKE clusters in each region
 gcloud container clusters create $SOURCE_CLUSTER \
   --project=$PROJECT_ID \
@@ -18,6 +22,7 @@ gcloud container clusters create $SOURCE_CLUSTER \
   --shielded-integrity-monitoring \
   --enable-autoscaling \
   --addons=BackupRestore \
+  --monitoring=SYSTEM,API_SERVER,SCHEDULER,CONTROLLER_MANAGER \
    &
 
 gcloud container clusters create $TARGET_CLUSTER \
@@ -36,6 +41,7 @@ gcloud container clusters create $TARGET_CLUSTER \
   --shielded-integrity-monitoring \
   --enable-autoscaling \
   --addons=BackupRestore \
+  --monitoring=SYSTEM,API_SERVER,SCHEDULER,CONTROLLER_MANAGER \
   &
 
 wait
