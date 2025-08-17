@@ -3,7 +3,7 @@ set -eux
 CONTAINER_VERION=v1
 
 # Copy required kustomize files into the build root
-cp -r ../kustomize/pv-base .
+cp -r ../../kustomize/pv-base .
 
 # Build and push the docker container
 docker build -f Dockerfile.failover .

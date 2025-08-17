@@ -11,7 +11,7 @@ cd ../../apps/disk-client
 ./build-client-docker-image.sh
 cd ../disk-writer
 ./build-writer-docker-image.sh
-cd ../disk-writer
+cd ../job-invoker
 ./build-job-invoker-docker-image.sh
 
 popd
