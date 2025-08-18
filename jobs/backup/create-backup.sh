@@ -27,29 +27,36 @@ PV_JSON_BLOB=$(kubectl get pv -n $NAMESPACE -l pd-type=cross-region-async -o jso
 
 # Find the targetVolume for every source volume
 JSON_KEYS_VALUES=$(echo "$PV_JSON_BLOB" | jq -r 'to_entries[] | "\(.key) \(.value.sourceVolume)"')
-TEMP_JSON_STREAM_FILE=$(mktemp)
-while IFS=' ' read -r pv_name full_volume_handle; do
 
-  SOURCE_VOLUME_SHORT_NAME=$(echo $full_volume_handle | awk -F'/' '{print $NF}')
+if [ -n "$JSON_KEYS_VALUES" ]; then
+  echo "Found Persistent Volumes to process..."
+  TEMP_JSON_STREAM_FILE=$(mktemp)
+  while IFS=' ' read -r pv_name full_volume_handle; do
 
-  TARGET_VOLUME_PD_HANDLE=$(gcloud compute disks describe $SOURCE_VOLUME_SHORT_NAME \
-    --region=$REGION \
-    --format="json" | \
-    jq -r '(.asyncSecondaryDisks // {}) | keys[]')
+    SOURCE_VOLUME_SHORT_NAME=$(echo $full_volume_handle | awk -F'/' '{print $NF}')
 
-  if [ -z "$TARGET_VOLUME_PD_HANDLE" ]; then
-    echo "Error: The source volume: ${SOURCE_VOLUME_SHORT_NAME} has no replica disks. The backup is unsuccessful and must exit"
-    exit 1
-  fi
+    TARGET_VOLUME_PD_HANDLE=$(gcloud compute disks describe $SOURCE_VOLUME_SHORT_NAME \
+      --region=$REGION \
+      --format="json" | \
+      jq -r '(.asyncSecondaryDisks // {}) | keys[]')
 
-  jq -n --arg pv_name "$pv_name" \
-        --arg source_handle "$full_volume_handle" \
-        --arg target_handle "$TARGET_VOLUME_PD_HANDLE" \
-	'{ ( $pv_name ): {sourceVolume: $source_handle, targetVolume : $target_handle}}' >> "$TEMP_JSON_STREAM_FILE"
-done <<< "$JSON_KEYS_VALUES"
+    if [ -z "$TARGET_VOLUME_PD_HANDLE" ]; then
+      echo "Error: The source volume: ${SOURCE_VOLUME_SHORT_NAME} has no replica disks. The backup is unsuccessful and must exit"
+      exit 1
+    fi
 
-# Merge all the individual JSON docs written to the temp file together
-PV_FINAL_JSON_BLOB=$(jq -s 'add' "$TEMP_JSON_STREAM_FILE")
+    jq -n --arg pv_name "$pv_name" \
+          --arg source_handle "$full_volume_handle" \
+          --arg target_handle "$TARGET_VOLUME_PD_HANDLE" \
+    '{ ( $pv_name ): {sourceVolume: $source_handle, targetVolume : $target_handle}}' >> "$TEMP_JSON_STREAM_FILE"
+  done <<< "$JSON_KEYS_VALUES"
+
+  # Merge all the individual JSON docs written to the temp file together
+  PV_FINAL_JSON_BLOB=$(jq -s 'add' "$TEMP_JSON_STREAM_FILE")
+else
+  echo "No Persistent Volumes to process..."
+  PV_FINAL_JSON_BLOB="{}"
+fi
 
 # Manually create the backup
 gcloud beta container backup-restore backups create $BACKUP_NAME-$REGION-$RAND_4_CHAR \
