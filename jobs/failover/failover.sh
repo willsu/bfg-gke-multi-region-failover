@@ -79,7 +79,7 @@ gcloud beta container backup-restore restores create $RESTORE_NAME-$RAND_4_CHAR 
   --wait-for-completion
 
 # Ensure Services with the correct label exist before attempting DNS cutover
-if [[ -n "$(kubectl get services -l service-type=cross-region-async -o name)" ]]; then
+if [[ -n "$(kubectl get services -l service-type=cross-region-async -n $NAMESPACE -o name)" ]]; then
 
   # Ensure the Services have an IP address assigned
   echo "Waiting for all Services with 'service-type=cross-region-async' label to have ingress IP addresses"
@@ -87,7 +87,7 @@ if [[ -n "$(kubectl get services -l service-type=cross-region-async -o name)" ]]
     services -l service-type=cross-region-async --all-namespaces --timeout=300s
 
   # Update the client facing DNS A record to the new cluster
-  kubectl get services -l service-type=cross-region-async --all-namespaces --output=json | \
+  kubectl get services -l service-type=cross-region-async -n $NAMESPACE --output=json | \
     jq -r '.items[] | select(.status.loadBalancer.ingress[0].ip != null) | "\(.spec.selector.app) \(.status.loadBalancer.ingress[0].ip)"' | \
     while read -r APP_NAME IP_ADDR; do
 
