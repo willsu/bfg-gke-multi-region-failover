@@ -3,6 +3,10 @@ set -eux
 
 SOURCE_ALERT_TOPIC_NAME="alert-topic-gke-apiserver-$REGION"
 
+gcloud pubsub topics add-iam-policy-binding $SOURCE_ALERT_TOPIC_NAME \
+    --member="serviceAccount:service-$PROJECT_NUMBER@gcp-sa-monitoring-notification.iam.gserviceaccount.com" \
+    --role="roles/pubsub.publisher"
+
 gcloud pubsub topics create $SOURCE_ALERT_TOPIC_NAME
 
 NOTIFICATION_CHANNEL=$(gcloud alpha monitoring channels create \
@@ -26,6 +30,5 @@ gcloud eventarc triggers create failover-trigger-$REGION \
     --event-filters="type=google.cloud.pubsub.topic.v1.messagePublished" \
     --transport-topic="projects/$PROJECT_ID/topics/$SOURCE_ALERT_TOPIC_NAME" \
     --location="us-central1" \
-    --allow-unauthenticated \
     --service-account="$SERVICE_ACCOUNT"
 

@@ -33,7 +33,7 @@ while IFS=' ' read -r pv_name source_volume_handle target_volume_handle; do
 
   if [ "$SECONDARY_ASYNC_EXISTS" == "false" ]; then
     NEW_PD_NAME="${SOURCE_VOLUME_SHORT_NAME}-${RAND_4_CHAR}"
-    
+
     # Start replication from the DR Region back to the Source Region.
     gcloud compute disks create $NEW_PD_NAME \
       --region=$REGION \

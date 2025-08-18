@@ -16,6 +16,8 @@ cd setup-scripts
 ./setup-cloud-run-client.sh
 ./setup-dns.sh
 ./setup-create-storage-bucket.sh
+./setup-cloud-run-job-invoker.sh
+./setup-automated-failover.sh
 ../jobs/create-backup.sh
 
 popd

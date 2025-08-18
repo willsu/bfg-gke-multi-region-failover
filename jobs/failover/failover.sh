@@ -48,10 +48,11 @@ while IFS=' ' read -r pv_name source_volume_handle target_volume_handle; do
   SOURCE_VOLUME_SHORT_NAME=$(echo $source_volume_handle | awk -F'/' '{print $NF}')
 
   # Stop disk replication on the target disk
-  # TODO: Handle errors. In the event of a regional outage there will be no reason to stop async replication.
+  # Note: During a Regional outage async replication will be stopped.
+  # This command always returns 0 to deal with potential failures in acccessing the source region 
   gcloud compute disks stop-async-replication $SOURCE_VOLUME_SHORT_NAME \
     --project=$PROJECT_ID \
-    --region=$REGION
+    --region=$REGION || true
 
   # Set the template variable used for envsub
   PD_VAR_NAME=$(echo "$pv_name" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
