@@ -6,6 +6,8 @@ cd ../jobs/backup
 ./build-backup-docker-image.sh
 cd ../failover
 ./build-failover-docker-image.sh
+cd ../create-replica-pds
+./build-create-replica-pds-docker-image.sh
 
 cd ../../apps/disk-client
 ./build-client-docker-image.sh

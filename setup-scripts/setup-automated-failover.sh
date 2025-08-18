@@ -3,17 +3,17 @@ set -eux
 
 SOURCE_ALERT_TOPIC_NAME="alert-topic-gke-apiserver-$REGION"
 
-gcloud pubsub topics add-iam-policy-binding $SOURCE_ALERT_TOPIC_NAME \
-    --member="serviceAccount:service-$PROJECT_NUMBER@gcp-sa-monitoring-notification.iam.gserviceaccount.com" \
-    --role="roles/pubsub.publisher"
-
 gcloud pubsub topics create $SOURCE_ALERT_TOPIC_NAME
 
 NOTIFICATION_CHANNEL=$(gcloud alpha monitoring channels create \
-    --display-name="GKE Alert Pub/Sub $SOURCE_CLUSTER" \
-    --type=pubsub \
-    --channel-labels=topic="projects/$PROJECT_ID/topics/$SOURCE_ALERT_TOPIC_NAME" \
-    --format="value(name)")
+  --display-name="GKE Alert Pub/Sub $SOURCE_CLUSTER" \
+  --type=pubsub \
+  --channel-labels=topic="projects/$PROJECT_ID/topics/$SOURCE_ALERT_TOPIC_NAME" \
+  --format="value(name)")
+
+gcloud pubsub topics add-iam-policy-binding $SOURCE_ALERT_TOPIC_NAME \
+    --member="serviceAccount:service-$PROJECT_NUMBER@gcp-sa-monitoring-notification.iam.gserviceaccount.com" \
+    --role="roles/pubsub.publisher"
 
 # Setup Template vars 
 export TPL_CLUSTER_NAME=$SOURCE_CLUSTER

@@ -25,6 +25,10 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:$SERVICE_ACCOUNT" \
   --role="roles/gkebackup.restoreAdmin"
 
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$SERVICE_ACCOUNT" \
+  --role="roles/run.developer"
+
 # Create the job to backup the SOURCE_CLUSTER
 gcloud run jobs create "$SOURCE_CLOUD_RUN_JOB_NAME" \
   --image "us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/scheduled-backup:v1" \
@@ -111,8 +115,6 @@ gcloud run jobs create "$SOURCE_TO_DR_FAILOVER_CLOUD_RUN_JOB_NAME" \
   TARGET_CLUSTER=$TARGET_CLUSTER:\
   RESTORE_NAME=$RESTORE_NAME:\
   RESTORE_PLAN_NAME=$RESTORE_PLAN_NAME:\
-  PD_SIZE_GB=$PD_SIZE_GB:\
-  SOURCE_PD_REPLICA_ZONES=$SOURCE_PD_REPLICA_ZONES:\
   DNS_NAME=$DNS_NAME:\
   DNS_ZONE_NAME=$DNS_ZONE_NAME"
 
@@ -132,7 +134,43 @@ gcloud run jobs create "$DR_TO_SOURCE_FAILOVER_CLOUD_RUN_JOB_NAME" \
   TARGET_CLUSTER=$SOURCE_CLUSTER:\
   RESTORE_NAME=$RESTORE_NAME:\
   RESTORE_PLAN_NAME=$RESTORE_PLAN_NAME:\
-  PD_SIZE_GB=$PD_SIZE_GB:\
-  SOURCE_PD_REPLICA_ZONES=$TARGET_PD_REPLICA_ZONES:
   DNS_NAME=$DNS_NAME:\
   DNS_ZONE_NAME=$DNS_ZONE_NAME"
+
+# Create the Cloud Run Job to create replica PDs in the Source Region
+gcloud run jobs create "$SOURCE_CREATE_REPLICA_PDS_CLOUD_RUN_JOB_NAME" \
+  --image "us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/create-replica-pds:v1" \
+  --region "$REGION" \
+  --task-timeout=5m \
+  --max-retries=3 \
+  --service-account="$SERVICE_ACCOUNT" \
+  --set-env-vars="^:^PROJECT_ID=$PROJECT_ID:\
+  PV_STORAGE_BUCKET=$PV_STORAGE_BUCKET:\
+  REGION=$REGION:\
+  DR_REGION=$DR_REGION:\
+  PD_SIZE_GB=$PD_SIZE_GB:\
+  PD_REPLICA_ZONES=$SOURCE_PD_REPLICA_ZONES"
+
+gcloud run jobs add-iam-policy-binding "$SOURCE_CREATE_REPLICA_PDS_CLOUD_RUN_JOB_NAME" \
+  --region="$REGION" \
+  --member="serviceAccount:$SERVICE_ACCOUNT" \
+  --role="roles/run.invoker"
+
+# Create the Cloud Run Job to create replica PDs in the DR Region
+gcloud run jobs create "$DR_CREATE_REPLICA_PDS_CLOUD_RUN_JOB_NAME" \
+  --image "us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/create-replica-pds:v1" \
+  --region "$DR_REGION" \
+  --task-timeout=5m \
+  --max-retries=3 \
+  --service-account="$SERVICE_ACCOUNT" \
+  --set-env-vars="^:^PROJECT_ID=$PROJECT_ID:\
+  PV_STORAGE_BUCKET=$PV_STORAGE_BUCKET:\
+  REGION=$DR_REGION:\
+  DR_REGION=$REGION:\
+  PD_SIZE_GB=$PD_SIZE_GB:\
+  PD_REPLICA_ZONES=$TARGET_PD_REPLICA_ZONES"
+
+gcloud run jobs add-iam-policy-binding "$DR_CREATE_REPLICA_PDS_CLOUD_RUN_JOB_NAME" \
+  --region="$DR_REGION" \
+  --member="serviceAccount:$SERVICE_ACCOUNT" \
+  --role="roles/run.invoker"

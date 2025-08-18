@@ -29,14 +29,3 @@ replacements:
           name: disk-writer-pv
         fieldPaths:
         - spec.csi.volumeHandle
-
-  - source:
-      kind: ConfigMap
-      name: pv-kustomize-config
-      fieldPath: data.namespace
-    targets:
-      - select:
-          kind: PersistentVolume
-          name: disk-writer-pv
-        fieldPaths:
-        - spec.claimRef.namespace

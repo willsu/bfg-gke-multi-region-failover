@@ -12,9 +12,6 @@ spec:
     - ReadWriteOnce # Or ReadWriteOncePod if using GKE Autopilot
   storageClassName: manual
   persistentVolumeReclaimPolicy: Retain
-  claimRef:
-    name: disk-writer-pvc
-    namespace: NAMESPACE # Placeholder for NAMESPACE
   # GCE Persistent Disk specific configuration
   csi:
     driver: pd.csi.storage.gke.io

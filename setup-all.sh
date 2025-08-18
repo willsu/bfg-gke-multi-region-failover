@@ -18,6 +18,6 @@ cd setup-scripts
 ./setup-create-storage-bucket.sh
 ./setup-cloud-run-job-invoker.sh
 ./setup-automated-failover.sh
-../jobs/create-backup.sh
+../jobs/backup/create-backup.sh
 
 popd

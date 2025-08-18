@@ -42,7 +42,7 @@ while IFS=' ' read -r pv_name source_volume_handle target_volume_handle; do
       --primary-disk=$TARGET_VOLUME_PD_NAME \
       --primary-disk-region=$DR_REGION \
       --primary-disk-project=$PROJECT_ID \
-      --replica-zones=$SOURCE_PD_REPLICA_ZONES
+      --replica-zones=$PD_REPLICA_ZONES
 
     gcloud compute disks start-async-replication $TARGET_VOLUME_PD_NAME \
       --region=$DR_REGION \

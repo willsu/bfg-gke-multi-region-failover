@@ -16,14 +16,6 @@ RAND_4_CHAR=$(tr -dc '[:lower:]' </dev/urandom | head -c 4)
 
 gcloud config set project $PROJECT_ID
 
-# CURRENT_IP=$(curl -4 -s "https://ifconfig.me/ip")
-# CURRENT_IP_CIDR="$CURRENT_IP/32"
-
-# gcloud container clusters update $SOURCE_CLUSTER \
-#   --location $REGION \
-#   --enable-master-authorized-networks \
-#   --master-authorized-networks "$CURRENT_IP_CIDR"
-
 # Configure kubectl to point to Source cluster
 gcloud container clusters get-credentials $SOURCE_CLUSTER \
   --region $REGION
@@ -43,7 +35,12 @@ while IFS=' ' read -r pv_name full_volume_handle; do
   TARGET_VOLUME_PD_HANDLE=$(gcloud compute disks describe $SOURCE_VOLUME_SHORT_NAME \
     --region=$REGION \
     --format="json" | \
-    jq -r '.asyncSecondaryDisks | keys[]')
+    jq -r '(.asyncSecondaryDisks // {}) | keys[]')
+
+  if [ -z "$TARGET_VOLUME_PD_HANDLE" ]; then
+    echo "Error: The source volume: ${SOURCE_VOLUME_SHORT_NAME} has no replica disks. The backup is unsuccessful and must exit"
+    exit 1
+  fi
 
   jq -n --arg pv_name "$pv_name" \
         --arg source_handle "$full_volume_handle" \
