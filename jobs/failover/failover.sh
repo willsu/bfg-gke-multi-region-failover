@@ -43,9 +43,9 @@ if [[ -n "$PV_JSON_BLOB" && "$PV_JSON_BLOB" != "{}" ]]; then
   # Parse the JSON blob into the PV_MAP associative array
   PV_SOURCE_AND_TARGETS=$(echo "$PV_JSON_BLOB" | jq -r 'to_entries[] | "\(.key) \(.value.sourceVolume) \(.value.targetVolume)"')
 
-  # Set the TPL values and stop replication for every Persistent Disk
-  # referenced in the JSON
+  # Create the TMP_DIR used to store the rendered PV yaml files
   TMP_DIR=$(mktemp -d)
+
   while IFS=' ' read -r pv_name source_volume_handle target_volume_handle; do
     SOURCE_VOLUME_SHORT_NAME=$(echo $source_volume_handle | awk -F'/' '{print $NF}')
 
@@ -56,13 +56,11 @@ if [[ -n "$PV_JSON_BLOB" && "$PV_JSON_BLOB" != "{}" ]]; then
       --region=$REGION || true
 
     # Set the template variable used for envsub
-    export TPL_NAMESPACE=$NAMESPACE
     export TPL_PV_VOLUME_HANDLE="$target_volume_handle"
     # TODO: remove this hard-coding and backup capacity data in PV backup and use the value here
     export TPL_PV_STORAGE_CAPACITY="50Gi"
     export TPL_PV_NAME="$pv_name"
-    envsubst < ../pv-base/namespace.yaml.tpl > ${TMP_DIR}/${TPL_PV_NAME}-ns.yaml
-    envsubst < ../pv-base/pv.yaml.tpl > ${TMP_DIR}/${TPL_PV_NAME}.yaml
+    envsubst < ../pv-base/pv.yaml.tpl > ${TMP_DIR}/${TPL_PV_NAME}-${NAMESPACE}.yaml
   done <<< "$PV_SOURCE_AND_TARGETS"
   # Apply the PV yaml to the DR region before the backup is restored
   kubectl apply -f $TMP_DIR
