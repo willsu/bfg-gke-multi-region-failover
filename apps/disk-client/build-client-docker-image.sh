@@ -4,7 +4,8 @@ set -eux
 CONTAINER_VERION=v1
 
 # Build and push the docker container
-docker build . -f Dockerfile.disk-client --no-cache
-LATEST_IMAGE_ID=$(docker images --format '{{.CreatedAt}}\t{{.ID}}' | sort -r | head -n 1 | awk '{print $5}')
-docker tag $LATEST_IMAGE_ID us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/disk-client:$CONTAINER_VERION
+IMAGE_ID_FILE=$(mktemp)
+docker build . --iidfile $IMAGE_ID_FILE -f Dockerfile.disk-client --no-cache
+IMAGE_ID=$(cat $IMAGE_ID_FILE)
+docker tag $IMAGE_ID us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/disk-client:$CONTAINER_VERION
 docker push us-docker.pkg.dev/$PROJECT_ID/$DOCKER_REPO_NAME/disk-client:$CONTAINER_VERION

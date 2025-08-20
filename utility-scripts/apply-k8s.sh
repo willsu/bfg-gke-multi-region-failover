@@ -9,7 +9,6 @@ export TPL_NAMESPACE=$NAMESPACE
 export TPL_PV_VOLUME_HANDLE="projects/${PROJECT_ID}/regions/${REGION}/disks/${SOURCE_PD_NAME}"
 export TPL_PV_STORAGE_CAPACITY="$PD_SIZE"
 export TPL_PV_NAME="disk-writer-pv"
-envsubst < ../pv-base/namespace.yaml.tpl > ${TMP_DIR}/${TPL_PV_NAME}-ns.yaml
 envsubst < ../pv-base/pv.yaml.tpl > ${TMP_DIR}/${TPL_PV_NAME}.yaml
 
 # Apply base resources using kustomize

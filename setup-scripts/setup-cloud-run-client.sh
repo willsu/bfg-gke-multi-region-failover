@@ -16,11 +16,5 @@ gcloud run deploy "$CLOUD_RUN_DISK_CLIENT" \
   --vpc-egress "all-traffic" \
   --service-account="$SERVICE_ACCOUNT" \
   --allow-unauthenticated \
-  --set-env-vars="DISK_WRITER_HOST=disk-writer.will-tools.hotel"
-
-# Note: currently setting access to allUsers. If we need to restrict access,
-# set the member to "user:$END_USER_ACCOUNT"
-gcloud run services add-iam-policy-binding "$CLOUD_RUN_DISK_CLIENT" \
-  --region="$CLIENT_REGION" \
-  --member="user:$END_USER_ACCOUNT" \
-  --role="roles/run.invoker"
+  --set-env-vars="DISK_WRITER_HOST=disk-writer.will-tools.hotel" \
+  --ingress=all
