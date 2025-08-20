@@ -36,11 +36,16 @@ PV_JSON_BLOB=$(gcloud storage cat gs://${PV_STORAGE_BUCKET}/${LATEST_BACKUP_SHOR
 # Check if the JSON blob contains Persistent Volume JSON data
 if [[ -n "$PV_JSON_BLOB" && "$PV_JSON_BLOB" != "{}" ]]; then
 
+  # Point kubectl to the target cluster 
+  gcloud container clusters get-credentials $TARGET_CLUSTER \
+    --region $DR_REGION
+
   # Parse the JSON blob into the PV_MAP associative array
   PV_SOURCE_AND_TARGETS=$(echo "$PV_JSON_BLOB" | jq -r 'to_entries[] | "\(.key) \(.value.sourceVolume) \(.value.targetVolume)"')
 
   # Set the TPL values and stop replication for every Persistent Disk
-  # referenced in the JSON 
+  # referenced in the JSON
+  TMP_DIR=$(mktemp -d)
   while IFS=' ' read -r pv_name source_volume_handle target_volume_handle; do
     SOURCE_VOLUME_SHORT_NAME=$(echo $source_volume_handle | awk -F'/' '{print $NF}')
 
@@ -51,19 +56,16 @@ if [[ -n "$PV_JSON_BLOB" && "$PV_JSON_BLOB" != "{}" ]]; then
       --region=$REGION || true
 
     # Set the template variable used for envsub
-    PD_VAR_NAME=$(echo "$pv_name" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
-    declare -x "TPL_${PD_VAR_NAME}_VOLUME_HANDLE"="$target_volume_handle"
-
+    export TPL_NAMESPACE=$NAMESPACE
+    export TPL_PV_VOLUME_HANDLE="$target_volume_handle"
+    # TODO: remove this hard-coding and backup capacity data in PV backup and use the value here
+    export TPL_PV_STORAGE_CAPACITY="50Gi"
+    export TPL_PV_NAME="$pv_name"
+    envsubst < ../pv-base/namespace.yaml.tpl > ${TMP_DIR}/${TPL_PV_NAME}-ns.yaml
+    envsubst < ../pv-base/pv.yaml.tpl > ${TMP_DIR}/${TPL_PV_NAME}.yaml
   done <<< "$PV_SOURCE_AND_TARGETS"
-
-  # Render the envsubst kustomize config template
-  export TPL_NAMESPACE=$NAMESPACE
-  envsubst < kustomize/pv-base/pv-kustomize-config.yaml.tpl > kustomize/pv-base/pv-kustomize-config.yaml
-
   # Apply the PV yaml to the DR region before the backup is restored
-  gcloud container clusters get-credentials $TARGET_CLUSTER \
-    --region $DR_REGION
-  kubectl apply -k kustomize/pv-base
+  kubectl apply -f $TMP_DIR
 else
   echo "No Persistent Volumes found in json blob..."
 fi

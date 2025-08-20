@@ -4,6 +4,6 @@ RUN apt-get update && \
     apt-get install -y gettext && \
     rm -rf /var/lib/apt/lists/*
 COPY failover.sh /
-RUN mkdir -p kustomize/pv-base
-COPY pv-base /kustomize/pv-base
+RUN mkdir -p pv-base
+COPY pv-base /pv-base
 CMD ["/failover.sh"]
