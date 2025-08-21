@@ -71,33 +71,33 @@ gcloud run jobs add-iam-policy-binding "$DR_CLOUD_RUN_JOB_NAME" \
   --member="serviceAccount:$SERVICE_ACCOUNT" \
   --role="roles/run.invoker"
 
-# gcloud scheduler jobs create http $SOURCE_CLOUD_SCHEDULER_JOB_NAME \
-#   --location=us-west1 \
-#   --schedule='*/10 * * * *' \
-#   --uri="https://run.googleapis.com/v2/projects/$PROJECT_ID/locations/${REGION}/jobs/${SOURCE_CLOUD_RUN_JOB_NAME}:run" \
-#   --http-method=POST \
-#   --oauth-service-account-email="$SERVICE_ACCOUNT" \
-#   --oauth-token-scope='https://www.googleapis.com/auth/cloud-platform' \
-#   --description='Triggers Cloud Run Job backup-job every 10 minutes for backup.' \
-#   --headers='User-Agent=Google-Cloud-Scheduler' \
-#   --attempt-deadline='180s' \
-#   --min-backoff='5s' \
-#   --max-backoff='3600s' \
-#   --max-doublings=5
+gcloud scheduler jobs create http $SOURCE_CLOUD_SCHEDULER_JOB_NAME \
+  --location=us-west1 \
+  --schedule='*/10 * * * *' \
+  --uri="https://run.googleapis.com/v2/projects/$PROJECT_ID/locations/${REGION}/jobs/${SOURCE_CLOUD_RUN_JOB_NAME}:run" \
+  --http-method=POST \
+  --oauth-service-account-email="$SERVICE_ACCOUNT" \
+  --oauth-token-scope='https://www.googleapis.com/auth/cloud-platform' \
+  --description='Triggers Cloud Run Job backup-job every 10 minutes for backup.' \
+  --headers='User-Agent=Google-Cloud-Scheduler' \
+  --attempt-deadline='180s' \
+  --min-backoff='5s' \
+  --max-backoff='3600s' \
+  --max-doublings=5
 
-# gcloud scheduler jobs create http $DR_CLOUD_SCHEDULER_JOB_NAME \
-#   --location=us-west1 \
-#   --schedule='*/10 * * * *' \
-#   --uri="https://run.googleapis.com/v2/projects/$PROJECT_ID/locations/${DR_REGION}/jobs/${DR_CLOUD_RUN_JOB_NAME}:run" \
-#   --http-method=POST \
-#   --oauth-service-account-email="$SERVICE_ACCOUNT" \
-#   --oauth-token-scope='https://www.googleapis.com/auth/cloud-platform' \
-#   --description='Triggers Cloud Run Job backup-job every 10 minutes for backup.' \
-#   --headers='User-Agent=Google-Cloud-Scheduler' \
-#   --attempt-deadline='180s' \
-#   --min-backoff='5s' \
-#   --max-backoff='3600s' \
-#   --max-doublings=5
+gcloud scheduler jobs create http $DR_CLOUD_SCHEDULER_JOB_NAME \
+  --location=us-west1 \
+  --schedule='*/10 * * * *' \
+  --uri="https://run.googleapis.com/v2/projects/$PROJECT_ID/locations/${DR_REGION}/jobs/${DR_CLOUD_RUN_JOB_NAME}:run" \
+  --http-method=POST \
+  --oauth-service-account-email="$SERVICE_ACCOUNT" \
+  --oauth-token-scope='https://www.googleapis.com/auth/cloud-platform' \
+  --description='Triggers Cloud Run Job backup-job every 10 minutes for backup.' \
+  --headers='User-Agent=Google-Cloud-Scheduler' \
+  --attempt-deadline='180s' \
+  --min-backoff='5s' \
+  --max-backoff='3600s' \
+  --max-doublings=5
 
 # Create the Cloud Run Job to failover from the source to DR cluster
 gcloud run jobs create "$SOURCE_TO_DR_FAILOVER_CLOUD_RUN_JOB_NAME" \

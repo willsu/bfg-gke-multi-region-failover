@@ -8,4 +8,5 @@ gcloud services enable \
   dns.googleapis.com \
   cloudscheduler.googleapis.com \
   gkebackup.googleapis.com \
-  eventarc.googleapis.com
+  eventarc.googleapis.com \
+  orgpolicy.googleapis.com
