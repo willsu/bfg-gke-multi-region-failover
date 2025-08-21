@@ -55,7 +55,7 @@ def get_disk_usage():
 
     backend_url = f"http://{DISK_WRITER_HOST}/disk"
     try:
-        response = requests.get(backend_url, timeout=5, stream=True)
+        response = requests.get(backend_url, timeout=10, stream=True)
         # Parse the JSON response from the backend to get the size
         data = response.json()
         current_size = data.get("current_disk_usage_bytes", 0)
