@@ -1,6 +1,6 @@
 # Automated Cross-Region Disaster Recovery for Stateful GKE Workloads
 
-Disclaimer: This is a solution sample that is not intended for production use. Please use it as a guide or open an issue if you would like to persue running this in production.
+Disclaimer: This is a solution sample that is not intended for production use. Please open an issue if you would like to persue running this in production.
 
 ### About
 This project provides a fully functional, sample solution that orchestrates automated disaster recovery for Stateful Workloads on Google Kubernetes Engine. The intended audience is organizations looking to provide hands-off disaster recovery in (very unlikely, but possible) event of a full Regional Google Cloud outage. 
