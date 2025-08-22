@@ -1,23 +1,26 @@
-# bfg-gke-multi-region-failover
+# Automated Cross-Region Disaster Recovery for Stateful GKE Workloads
 
-Highly Experimental.. Please ignore
+Disclaimer: This is a solution sample that is not intended for production use. Please use it as a guide or open an issue if you would like to persue running this in production.
 
-Next Steps:
-* Change container behavior to webserver and created client container to add/get bytes to disk. Run client in 3rd region to show how the client could recover during cross-region failover
-* Create Load Balancer with failover conditions that the client uses to communicate with the service in the active region.
-* Test multiple stateful workloads 
+### About
+This project provides a fully functional, sample solution that orchestrates automated disaster recovery for Stateful Workloads on Google Kubernetes Engine. The intended audience is organizations looking to provide hands-off disaster recovery in (very unlikely, but possible) event of a full Regional Google Cloud outage. 
 
-Assumptions
-* In a complete regional failure, we cannot depend on any information from the source region (e.g Persistent Disks in the Cloud Console, GKE cluster configurations, etc)
-* Persistent Disks with cross-region asynchronous replication must be managed outside of GKE and brought into the cluser through Static Volume Provision.
-  * This includes the process to stop/start replication during in the event of a failover.
+# Technical Overview
+The solution uses a mix of Backup for GKE and custom control plane elements to handle Persistent Disks Asynchronous Replication are used to demonstrate low RPO (seconds), RTO (~5 minutes) across 2 GCP Regions. Using Backup for GKE allows the solution backup entirely on a GKE clusters current state, as opposed to being dependant on a Continuous Delivery system (e.g. ArgoCD). 
 
-Goals
-* Invoking the failover script should require as little configuration as possible.
-* The failover script may be invoked manually or through an automated mechanism (such as a Cloud Monitoring alert).
+### Setup
 
-TODO Ideas:
-* Cloud Run Job that executes a manual "Backup for GKE" backup and then reads the Persistent Disk handles from the Persistent Volume resources. The Persistent Disk handles will be stored in a Cloud Object storage buckets that will be connected by naming convention to the specific "Backup for GKE" backup taken within the same Cloud Run Job.
-  * The Persistent Volume k8s resources will be tagged (e.g. "cross-region-async") to ease the implementation parsing the YAML to resolve the in-use Persistent Disk.
-  * The Persistent Disks YAML will be keyed-off by the ".metadata.name" field of their k8s resources. (TODO: find a way to correlate this back to the relevant envsub resource).
-  * Cloud Run Job ensures that there is not already a BfG backup in progress, and will exit immediately if there is. 
+Prerequirements:
+* Google Cloud Account
+* gcloud SDK
+
+Installation Instructions:
+1) Optional: review the "configure.sh" file and determine if the variable values meet your neeeds. 
+
+2) Run the `setup-all` script to provision all the Google Cloud resources 
+```BASH
+./setup-all
+```
+Estimated Time for Completion: 20 minutes
+
+### Usage
